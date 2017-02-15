@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculate Assignment</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="assets/css/all.min.css"/>
+
+    <script src="assets/js/scripts.min.js"></script>
+    <script src="assets/js/react.min.js"></script>
+    <script src="assets/js/JSXTransformer.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>Calculate Assignment</h1>
+    </div>
+    <div id="calculateApp"></div>
+</div>
+<script type="text/jsx">
+    /** @jsx React.DOM */
+    var CalculateApp = React.createClass({
+        getInitialState: function() {
+            return {numberlist:this.props.numbers};
+        },
+        handleNewRowSubmit: function( newnumber ) {
+            this.setState( {numberlist: this.state.numberlist.concat([newnumber])} );
+        },
+        handleNumberRemove: function( number ) {
+
+            var index = -1;
+            var nlength = this.state.numberlist.length;
+            for( var i = 0; i < nlength; i++ ) {
+                if( this.state.numberlist[i].fNumber === number.fNumber ) {
+                    index = i;
+                    break;
+                }
+            }
+            this.state.numberlist.splice( index, 1 );
+            this.setState( {numberlist: this.state.numberlist} );
+        },
+        render: function() {
+            return (
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-md-4"><NewRow onRowSubmit={this.handleNewRowSubmit}/></div>
+                            <div className="col-md-8"><NumberList nlist={this.state.numberlist}  onNumberRemove={this.handleNumberRemove}/></div>
+                        </div>
+                    </div>
+
+            );
+        }
+    });
+
+    var NumberList = React.createClass({
+        handleNumberRemove: function(number){
+            this.props.onNumberRemove( number );
+        },
+        render: function() {
+            var numbers = [];
+            var that = this;
+            this.props.nlist.forEach(function(number) {
+                numbers.push(<Number number={number} onNumberDelete={that.handleNumberRemove} /> );
+            });
+            return (
+                    <div>
+                        <h3>List of Number History</h3>
+                        <table className="table table-striped">
+                            <thead className="table-title"><tr><th>First Number</th><th className="hidden-xs">Operator</th><th>Second Number</th><th>Result</th><th className="hidden-xs">Action</th></tr></thead>
+                            <tbody className="text-center">{numbers}</tbody>
+                        </table>
+                    </div>
+            );
+        }
+    });
+
+    var Number = React.createClass({
+        handleRemoveNumber: function() {
+            this.props.onNumberDelete( this.props.number );
+            return false;
+        },
+        render: function() {
+            return (
+                    <tr>
+                        <td>{this.props.number.fNumber}</td>
+                        <td className="hidden-xs">{this.props.number.eOperator}</td>
+                        <td>{this.props.number.sNumber}</td>
+                        <td>{this.props.number.result}</td>
+                        <td className="hidden-xs"><input type="button"  className="btn btn-primary" value="Remove" onClick={this.handleRemoveNumber}/></td>
+                    </tr>
+            );
+        }
+    });
+
+    var NewRow = React.createClass({
+        handleSubmit: function() {
+            var fNumber = parseFloat(this.refs.fNumber.getDOMNode().value);
+            var eOperator = this.refs.eOperator.getDOMNode().value;
+            var sNumber = parseFloat(this.refs.sNumber.getDOMNode().value);
+            if(eOperator== '+'){var result = fNumber  +  sNumber;}
+            if(eOperator== '/'){var result = fNumber  /  sNumber;}
+            if(eOperator== '%'){var result = fNumber  %  sNumber;}
+            if(eOperator== 'h' || eOperator == 'H'){
+                function isPrime(n) {
+                    return !(Array(n + 1).join(1).match(/^1?$|^(11+?)\1+$/));
+                }
+                if (isPrime(fNumber)===true || isPrime(sNumber)===true){
+                    if(fNumber>sNumber){
+                        result=fNumber
+                    }
+                    else{
+                        result=sNumber
+                    }
+
+                }
+            }
+
+            var newrow = {fNumber: fNumber, eOperator: eOperator, sNumber: sNumber, result:result };
+
+            this.props.onRowSubmit( newrow );
+            this.refs.fNumber.getDOMNode().value = '';
+            this.refs.eOperator.getDOMNode().value = '';
+            this.refs.sNumber.getDOMNode().value = '';
+            return false;
+        },
+        render: function() {
+            var inputStyle = {padding:'12px'};
+            return (
+                    <div className="well">
+                        <h3>Calculate</h3>
+                        <form onSubmit={this.handleSubmit}>
+                            <div className="input-group input-group-lg" style={inputStyle}>
+                                <input type="number"  className="form-control col-md-8"  placeholder="Enter First Number" ref="fNumber" required />
+                            </div>
+                            <div className="input-group input-group-lg" style={inputStyle}>
+                                <input type="text"  className="form-control col-md-8" placeholder="Enter Operator(+, /, %, H)" ref="eOperator" pattern="[+/%Hh]{1}" required />
+                            </div>
+                            <div className="input-group input-group-lg" style={inputStyle}>
+                                <input type="number"  className="form-control col-md-8" placeholder="Enter Second Number" ref="sNumber" required />
+                            </div>
+                            <div className="input-group input-group-lg" style={inputStyle}>
+                                <input type="submit"  className="btn btn-primary btn-lg" value="Calculate"/>
+                            </div>
+                        </form>
+                    </div>
+            );
+        }
+    });
+    var defNumbers = [{fNumber:1,eOperator:'+',sNumber:1,result:2},{fNumber:5,eOperator:'+',sNumber:5,result:10}];
+    React.renderComponent( <CalculateApp numbers={defNumbers}/>, document.getElementById( "calculateApp" ) );
+</script>
+</body>
+</html>
