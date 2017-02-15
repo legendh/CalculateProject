@@ -3,7 +3,7 @@ module.exports =  function(grunt){
     grunt.initConfig({
         concat:{
             js:{
-                src:['bower_components/jquery/dist/jquery.js','bower_components/bootstrap/dist/js/bootstrap.js','dist/js/main.js,'],
+                src:['bower_components/jquery/dist/jquery.js','bower_components/bootstrap/dist/js/bootstrap.js'],
                 dest:'dist/js/scripts.js'
                 },
             css:{
